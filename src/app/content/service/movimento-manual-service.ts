@@ -16,7 +16,7 @@ export class MovimentoManualService {
   constructor(private httpClient: HttpClient) { }
 
   save(dto: MovimentoManual): Observable<MovimentoManual> {
-    return this.httpClient.post<MovimentoManual>(`${_Url}/salvar`, dto);
+    return this.httpClient.post<MovimentoManual>(`${_Url}`, dto);
   }
 
   getMovimentos(): Observable<MovimentoManual[]> {

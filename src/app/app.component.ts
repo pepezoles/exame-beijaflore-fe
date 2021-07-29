@@ -1,6 +1,6 @@
 import { Component,OnInit, ViewChild, } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarHorizontalPosition, MatSnackBarVerticalPosition } from '@angular/material/snack-bar';
 import { MovimentoManual } from './content/model/movimento-manual';
 import { Produto } from './content/model/produto';
 import { ProdutoCosif } from './content/model/produto-cosif';
@@ -18,6 +18,8 @@ export class AppComponent implements OnInit {
   @ViewChild('f', { static: false }) myForm; 
 
   eventForm: FormGroup;
+  horizontalPosition: MatSnackBarHorizontalPosition = 'center';
+  verticalPosition: MatSnackBarVerticalPosition = 'top';
 
   displayedColumns: string[] = ['mes', 'ano', 'codigo-produto', 'descricao-produto', 'numero-lancamento', 'descricao-movimento', 'valor'];
   dataSource: MovimentoManual[];
@@ -92,13 +94,32 @@ export class AppComponent implements OnInit {
      )
    } else {
      this.produtosCosif = [];
-     this.eventForm.get('produtoCosifId').setValue(null);
     }
+    this.eventForm.get('produtoCosifId').setValue(null);
   }
 
-  public onSubmit(){    
-    this.openSnackBar('salvar');
+  public onSubmit(){      
     if (!this.eventForm.valid) return;   
+
+    let m: MovimentoManual = new MovimentoManual();
+    m.produtoCosif = new ProdutoCosif();
+    m.produtoCosif.produto = new Produto();
+    m.mes = this.eventForm.get('mes').value;
+    m.ano = this.eventForm.get('ano').value;
+    m.produtoCosif.produto.produtoId = this.eventForm.get('produtoId').value;
+    m.produtoCosif.produtoCosifId = this.eventForm.get('produtoCosifId').value;
+    m.valor = this.eventForm.get('valor').value;
+    m.descricao = this.eventForm.get('descricao').value;
+    
+    this.service.save(m).subscribe(
+      data => {
+        this.openSnackBar('Movimento Manual salvo com sucesso!');
+        this.listar();
+        this.limpar();
+      }, error => {
+        this.openSnackBar(`Não foi possível incluir as informaçoes.`);
+      }
+    )
     
   }
 
@@ -119,6 +140,9 @@ export class AppComponent implements OnInit {
   }
 
   openSnackBar(message: string) {   
-    this._snackBar.open(message);
+    this._snackBar.open(message, null, {
+      horizontalPosition: this.horizontalPosition,
+        verticalPosition: this.verticalPosition,
+    });
   }
 }
